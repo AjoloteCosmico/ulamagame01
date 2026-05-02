@@ -24,28 +24,28 @@ kaboom({
   background: [30, 20, 10],
 });
 
-await loadSprite('player1', '/sprites/scott.png', {
+ loadSprite('player1', '/sprites/iasprite.png', {
   sliceX: 8,
-  sliceY: 2,
+  sliceY: 3,
   anims: {
     idleR: 0,
     idleL: 8,
-    walkR: { from: 0, to: 7, speed: 12, loop: true },
+    walkR: { from: 1, to: 7, speed: 12, loop: true },
     walkL: { from: 8, to: 15, speed: 12, loop: true },
-    jumpR: 1, // Ajusta según tu sprite
-    jumpL: 9,
-    duckR: 2, // Ajusta
-    duckL: 10,
+    jumpR: 16, // Ajusta según tu sprite
+    jumpL: 18,
+    duckR: 17, // Ajusta
+    duckL: 19,
   },
 });
-await loadSprite('player2', '/sprites/scott.png', {
+ loadSprite('player2', '/sprites/scott.png', {
   sliceX: 8,
   sliceY: 2,
   anims: {
     idleR: 0,
     idleL: 8,
-    walkR: { from: 0, to: 7, speed: 12, loop: true },
-    walkL: { from: 8, to: 15, speed: 12, loop: true },
+    walkR: { from: 8, to: 15, speed: 12, loop: true },
+    walkL: { from: 0, to: 7, speed: 12, loop: true },
     jumpR: 1,
     jumpL: 9,
     duckR: 2,
@@ -242,10 +242,17 @@ scene('game', () => {
         s
       );
 
-      // Cambiar animación basada en estado
-      const animName = `${p.state}${p.facingDir > 0 ? 'R' : 'L'}`;
-      if (playerSprites[i].curAnim() !== animName) {
-        playerSprites[i].play(animName);
+      // Cambiar animación / frame basada en estado o en el golpe activo
+      if (p.isHitting && p.currentHit?.animFrame != null) {
+        const frame = p.currentHit.getAnimFrame(p.hitTimer);
+        if (frame != null) {
+          playerSprites[i].frame = frame;
+        }
+      } else {
+        const animName = `${p.state}${p.facingDir > 0 ? 'R' : 'L'}`;
+        if (playerSprites[i].curAnim() !== animName) {
+          playerSprites[i].play(animName);
+        }
       }
     });
 

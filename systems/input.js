@@ -22,22 +22,24 @@
  *  - cycleHitNext / cycleHitPrev: cambiar tipo de caída
  */
 const PLAYER_KEYMAPS = [
-  // Jugador 1 — WASD
+  // Jugador 1 — WASD + espacio para saltar
   {
     up:           'w',
     down:         's',
     left:         'a',
     right:        'd',
-    hit:          'space',
+    jump:         'space',
+    hit:          'f',
     cycleHitNext: 'e',
     cycleHitPrev: 'q',
   },
-  // Jugador 2 — Flechas
+  // Jugador 2 — Flechas + shift para saltar
   {
     up:           'up',
     down:         'down',
     left:         'left',
     right:        'right',
+    jump:         'shift',
     hit:          'enter',
     cycleHitNext: ']',
     cycleHitPrev: '[',
@@ -74,6 +76,11 @@ export function initInput(players) {
       if (player.canHit) player.startHit();
     });
 
+    // Salto del jugador
+    onKeyPress(map.jump, () => {
+      player.jump?.();
+    });
+
     // Ciclo de caídas
     onKeyPress(map.cycleHitNext, () => player.cycleHit(+1));
     onKeyPress(map.cycleHitPrev, () => player.cycleHit(-1));
@@ -98,8 +105,8 @@ export function getDirection(i) {
 
   if (isKeyDown(map.left))  x -= 1;
   if (isKeyDown(map.right)) x += 1;
-  if (isKeyDown(map.up))    y -= 1; // salto
-  if (isKeyDown(map.down))  y += 1; // agacharse
+  if (isKeyDown(map.up))    y -= 1; // profundidad hacia atrás
+  if (isKeyDown(map.down))  y += 1; // profundidad hacia adelante
 
   return { x, y };
 }

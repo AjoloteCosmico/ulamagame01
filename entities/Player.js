@@ -79,39 +79,32 @@ export class Player {
     } else {
       // Fricción cuando no hay input horizontal
       this.vel.x *= this.friction;
-      if (this._onGround && this.heightState !== 'ducking') {
-        this.state = 'idle';
+    }
+
+    if (this._onGround) {
+      if (direction.y !== 0) {
+        // Movimiento de profundidad en el suelo, no salto.
+        this.vel.y = direction.y * SPEED;
+        this.state = 'walk';
+      } else {
+        this.vel.y *= this.friction;
       }
     }
 
-    // Movimiento vertical continuo (arriba/abajo)
-    if (direction.y !== 0) {
-      this.vel.y = direction.y * SPEED; // Ajusta SPEED o usa una velocidad vertical separada
-      this._onGround = false; // Desactivar suelo para permitir vuelo    } else if (this._onGround) {
-      // Solo aplicar gravedad si está en el suelo y no hay input vertical
-      // Pero en update() ya se maneja la gravedad
+    if (this._onGround && direction.x === 0 && direction.y === 0) {
+      this.state = 'idle';
     }
+  }
 
-    // Salto adicional (opcional, si quieres mantener salto)
-    if (direction.y < 0 && this._onGround) {
-      this.vel.y = JUMP_FORCE;
-      this._onGround = false;
-      this.heightState = 'jumping';
-      this.state = 'jump';
-    }
-
-    // Agacharse (solo si en suelo)
-    if (direction.y > 0 && this._onGround) {
-      this.heightState = 'ducking';
-      this.height = HEIGHT_MAP.ducking;
-      this.state = 'duck';
-    } else if (this._onGround && direction.y === 0) {
-      this.heightState = 'normal';
-      this.height = HEIGHT_MAP.normal;
-      if (this.vel.x === 0) {
-        this.state = 'idle';
-      }
-    }
+  /**
+   * Ejecuta un salto si el jugador está en el suelo.
+   */
+  jump() {
+    if (!this._onGround || this.heightState === 'ducking') return;
+    this.vel.y = JUMP_FORCE;
+    this._onGround = false;
+    this.heightState = 'jumping';
+    this.state = 'jump';
   }
 
   /**

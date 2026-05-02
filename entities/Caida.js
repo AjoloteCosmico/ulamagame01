@@ -29,12 +29,14 @@ export class Caida {
     forceCurve = [[0, 0], [0.5, 1], [1, 0]],
     impulseVector = { x: 500, y: -300 },
     heightModifier = 'normal',
+    animFrame = null,
   } = {}) {
     this.name = name;
     this.duration = duration;
     this.forceCurve = forceCurve; // debe estar ordenado por t
     this.impulseVector = { x: impulseVector.x, y: impulseVector.y };
     this.heightModifier = heightModifier;
+    this.animFrame = animFrame; // frame fijo o rango: number | { from, to, speed, loop }
 
     // Modificadores por altura
     this._heightYMultipliers = {
@@ -79,6 +81,24 @@ export class Caida {
    * @param {number} facingDir — +1 derecha / -1 izquierda
    * @returns {{x:number, y:number}}
    */
+  getAnimFrame(elapsedTime) {
+    if (this.animFrame == null) return null;
+    if (typeof this.animFrame === 'number') return this.animFrame;
+
+    const { from, to, speed = 12, loop = false } = this.animFrame;
+    const step = Math.sign(to - from) || 1;
+    const frameCount = Math.abs(to - from) + 1;
+    const frameIndex = Math.floor(elapsedTime * speed);
+
+    if (loop) {
+      const idx = frameIndex % frameCount;
+      return from + step * idx;
+    }
+
+    const idx = Math.min(frameIndex, frameCount - 1);
+    return from + step * idx;
+  }
+
   getImpulse(elapsedTime, facingDir = 1) {
     const mult = this.getForceMultiplier(elapsedTime);
     const yMod = this._heightYMultipliers[this.heightModifier] ?? 1;
@@ -104,6 +124,7 @@ export const CAIDAS = {
     forceCurve: [[0, 0], [0.4, 1], [0.7, 0.8], [1, 0]],
     impulseVector: { x: 550, y: -280 },
     heightModifier: 'normal',
+    animFrame: { from: 16, to: 17, speed: 15, loop: false },
   }),
 
   remate: new Caida({
@@ -112,6 +133,7 @@ export const CAIDAS = {
     forceCurve: [[0, 0], [0.2, 1.8], [0.6, 1.2], [1, 0]],
     impulseVector: { x: 800, y: -150 },
     heightModifier: 'low',
+    animFrame: 20,
   }),
 
   globo: new Caida({
