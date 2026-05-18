@@ -24,14 +24,14 @@ kaboom({
   background: [30, 20, 10],
 });
 
- loadSprite('player1', '/sprites/iasprite.png', {
+ loadSprite('player1', '/sprites/spritea.png', {
   sliceX: 8,
   sliceY: 3,
   anims: {
     idleR: 0,
     idleL: 8,
     walkR: { from: 1, to: 7, speed: 12, loop: true },
-    walkL: { from: 8, to: 15, speed: 12, loop: true },
+    walkL: { from: 15, to: 8, speed: 12, loop: true },
     jumpR: 16, // Ajusta según tu sprite
     jumpL: 18,
     duckR: 17, // Ajusta
