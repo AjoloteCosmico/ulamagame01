@@ -53,6 +53,8 @@ kaboom({
   },
 });
 
+loadSprite('ball', '/sprites/pelota3.png');
+
 // ─── Configuración de la escena ───────────────────────────────────────────────
 
 const WORLD_W = 1280;
@@ -131,10 +133,10 @@ scene('game', () => {
 
   // Sprite de pelota
   const ballSprite = add([
-    circle(ball.radius),
+    sprite('ball'),
     pos(ball.pos.x, ball.pos.y),
-    color(240, 220, 80),
     anchor('center'),
+    scale(0.8),
   ]);
 
   // HUD provisional
