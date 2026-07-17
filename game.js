@@ -24,28 +24,28 @@ kaboom({
   background: [30, 20, 10],
 });
 
- loadSprite('player1', '/sprites/spritea.png', {
-  sliceX: 8,
+ loadSprite('player1', '/sprites/Alan_v01.png', {
+  sliceX: 9,
   sliceY: 3,
   anims: {
     idleR: 0,
     idleL: 8,
-    walkR: { from: 1, to: 7, speed: 12, loop: true },
-    walkL: { from: 15, to: 8, speed: 12, loop: true },
+    walkR: { from: 18, to: 25, speed: 11, loop: true },
+    walkL: { from: 18, to: 25, speed: 11, loop: true },
     jumpR: 16, // Ajusta según tu sprite
     jumpL: 18,
     duckR: 17, // Ajusta
     duckL: 19,
   },
 });
- loadSprite('player2', '/sprites/scott.png', {
-  sliceX: 8,
-  sliceY: 2,
+ loadSprite('player2', '/sprites/Alan_v01.png', {
+  sliceX: 9,
+  sliceY: 3,
   anims: {
     idleR: 0,
     idleL: 8,
-    walkR: { from: 8, to: 15, speed: 12, loop: true },
-    walkL: { from: 0, to: 7, speed: 12, loop: true },
+    walkR: { from: 18, to: 25, speed: 12, loop: true },
+    walkL: { from: 18, to: 25, speed: 12, loop: true },
     jumpR: 1,
     jumpL: 9,
     duckR: 2,
