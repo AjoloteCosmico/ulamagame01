@@ -24,7 +24,7 @@ kaboom({
   background: [30, 20, 10],
 });
 
- loadSprite('player1', '/sprites/spritea.png', {
+ loadSprite('player1', '/sprites/vic_sprite02.png', {
   sliceX: 8,
   sliceY: 3,
   anims: {
@@ -38,18 +38,19 @@ kaboom({
     duckL: 19,
   },
 });
- loadSprite('player2', '/sprites/scott.png', {
-  sliceX: 8,
+
+ loadSprite('player2', '/sprites/brandi.jpeg', {
+  sliceX: 4,
   sliceY: 2,
   anims: {
     idleR: 0,
-    idleL: 8,
-    walkR: { from: 8, to: 15, speed: 12, loop: true },
-    walkL: { from: 0, to: 7, speed: 12, loop: true },
+    idleL: 7,
+    walkR: { from: 4, to: 7, speed: 12, loop: true },
+    walkL: { from: 0, to: 3, speed: 12, loop: true },
     jumpR: 1,
-    jumpL: 9,
+    jumpL: 4,
     duckR: 2,
-    duckL: 10,
+    duckL: 0,
   },
 });
 
