@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaboom - Prototipo</title>
+    <!-- Fuente pixelart -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            image-rendering: pixelated;
+            user-select: none;
+        }
+
+        body {
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        /* Contenedor principal del juego */
+        #game-container {
+            position: relative;
+            width: 960px;
+            height: 540px;
+            background: #2d2d44;
+            border: 6px solid #4a3f5c;
+            box-shadow: 0 0 0 4px #1a1a2e, 0 0 0 8px #6a5f7c;
+            overflow: hidden;
+            image-rendering: pixelated;
+        }
+
+        /* Capa de fondo (inmóvil) */
+        #background-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background-image: url('background.png');
+            /* fallback: si no existe la imagen, usamos un gradiente */
+            background-size: cover;
+            background-position: center;
+            image-rendering: pixelated;
+        }
+
+        /* Capa frontal (parallax) */
+        #front-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            z-index: 1;
+            background-image: url('front-background.png');
+            background-size: cover;
+            background-repeat: repeat-x;
+            image-rendering: pixelated;
+            transition: none;
+            will-change: transform;
+        }
+
+        /* Personaje */
+        #character {
+            position: absolute;
+            bottom: 60px;
+            left: 400px;
+            width: 64px;
+            height: 80px;
+            z-index: 2;
+            background-image: url('character.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            image-rendering: pixelated;
+            transition: none;
+            will-change: transform;
+            pointer-events: none;
+        }
+
+        /* ===== UI FRONTAL (z-index alto) ===== */
+        .ui-front {
+            position: absolute;
+            z-index: 10;
+            pointer-events: none;
+            font-size: 12px;
+            color: #f0e6d0;
+            text-shadow: 2px 2px 0 #2a1f3a;
+        }
+
+        /* Panel izquierdo (vida, nombre, nivel, cacao, cofre, morral, guaje) */
+        #ui-left {
+            top: 16px;
+            left: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .ui-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: rgba(20, 15, 30, 0.7);
+            padding: 8px 12px;
+            border: 3px solid #5a4a6a;
+            box-shadow: inset 0 0 0 2px #3a2a4a;
+            image-rendering: pixelated;
+            pointer-events: none;
+        }
+
+        .ui-row span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+        }
+
+        /* Barra de vida */
+        #hp-bar {
+            width: 120px;
+            height: 16px;
+            background: #3a1f1f;
+            border: 2px solid #6a3f3f;
+            box-shadow: inset 0 0 0 2px #1a0f0f;
+            position: relative;
+        }
+        #hp-fill {
+            height: 100%;
+            width: 80%;
+            background: #d44a4a;
+            transition: width 0.1s;
+            box-shadow: inset 0 0 0 2px #f06a6a;
+        }
+
+        /* Guaje (contenedor especial) */
+        #guaje-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(30, 25, 40, 0.8);
+            padding: 4px 10px 4px 6px;
+            border: 2px solid #7a6a4a;
+        }
+        #guaje-icon {
+            width: 28px;
+            height: 32px;
+            background: #6a8a4a;
+            border: 2px solid #4a6a2a;
+            position: relative;
+            border-radius: 4px 4px 8px 8px;
+        }
+        #guaje-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: #b88a3a;
+            transition: height 0.2s;
+            border-radius: 0 0 4px 4px;
+        }
+        #guaje-type {
+            font-size: 10px;
+            color: #f0e0b0;
+            text-shadow: 1px 1px 0 #2a1f0a;
+        }
+
+        /* Panel derecho (región, mapa, opciones) */
+        #ui-right {
+            top: 16px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .ui-block {
+            background: rgba(20, 15, 30, 0.7);
+            padding: 8px 14px;
+            border: 3px solid #5a4a6a;
+            box-shadow: inset 0 0 0 2px #3a2a4a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .ui-block .icon {
+            width: 28px;
+            height: 28px;
+        }
+
+        #region-name {
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        #menu-btn {
+            pointer-events: auto;
+            cursor: pointer;
+            background: #3a2a4a;
+            border: 2px solid #8a7a9a;
+            color: #f0e6d0;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            padding: 4px 12px;
+            box-shadow: inset 0 0 0 2px #5a4a6a;
+            transition: 0.05s linear;
+            image-rendering: pixelated;
+        }
+        #menu-btn:hover {
+            background: #5a4a6a;
+            border-color: #aa9aba;
+        }
+        #menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Toque pixelart adicional */
+        .pixel-border {
+            border-style: solid;
+            border-width: 3px;
+            border-color: #7a6a8a #3a2a4a #3a2a4a #7a6a8a;
+        }
+
+        /* responsive simple */
+        @media (max-width: 1000px) {
+            #game-container {
+                width: 100vw;
+                height: 56.25vw;
+                max-height: 100vh;
+            }
+        }
+
+        /* Personalización de scroll y selección */
+        ::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* Estilos para elementos de texto */
+        .label {
+            font-size: 11px;
+            color: #d0c0d8;
+        }
+        .value {
+            color: #f8f0e0;
+        }
+        .hp-text {
+            font-size: 10px;
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Capa fondo -->
+        <div id="background-layer"></div>
+
+        <!-- Capa frontal (parallax) -->
+        <div id="front-layer"></div>
+
+        <!-- Personaje -->
+        <div id="character"></div>
+
+        <!-- ===== UI FRONTAL ===== -->
+        <!-- Panel izquierdo -->
+        <div id="ui-left" class="ui-front">
+            <!-- Fila 1: vida + nombre + nivel -->
+            <div class="ui-row">
+                <span class="hp-text">VIDA</span>
+                <div id="hp-bar">
+                    <div id="hp-fill" style="width:76%;"></div>
+                </div>
+                <span>
+                    <span class="label">NOM</span>
+                    <span class="value" id="char-name">KABOOM</span>
+                </span>
+                <span>
+                    <span class="label">LV</span>
+                    <span class="value" id="char-level">7</span>
+                </span>
+            </div>
+
+            <!-- Fila 2: cacao, cofre, morral, guaje -->
+            <div class="ui-row" style="flex-wrap: wrap; gap: 8px;">
+                <span>
+                    <span class="icon" style="background:#b8860b; border:2px solid #daa520; width:28px; height:28px; border-radius:50%;"></span>
+                    <span class="value" id="cacao-count">42</span>
+                </span>
+                <span>
+                    <span class="icon" style="background:#8b6b4a; border:2px solid #b8956a; width:28px; height:24px; border-radius:4px; position:relative;">
+                        <span style="position:absolute;top:2px;left:6px;font-size:16px;">📦</span>
+                    </span>
+                    <span class="label">INVENT</span>
+                </span>
+                <span>
+                    <span class="icon" style="background:#6a5a3a; border:2px solid #8a7a5a; width:28px; height:22px; border-radius:4px; position:relative;">
+                        <span style="position:absolute;top:0px;left:6px;font-size:16px;">🎒</span>
+                    </span>
+                    <span class="label">MORRAL</span>
+                </span>
+                <!-- Guaje -->
+                <span id="guaje-container">
+                    <div id="guaje-icon">
+                        <div id="guaje-fill" style="height:65%;"></div>
+                    </div>
+                    <div>
+                        <div id="guaje-type" style="font-size:10px;">PULQUE</div>
+                        <div style="font-size:9px; color:#b8a888;">65%</div>
+                    </div>
+                </span>
+            </div>
+        </div>
+
+        <!-- Panel derecho -->
+        <div id="ui-right" class="ui-front">
+            <div class="ui-block">
+                <span class="icon" style="background:#4a7a3a; border:2px solid #6a9a5a; border-radius:4px; position:relative;">
+                    <span style="position:absolute;top:2px;left:4px;font-size:18px;">🗺️</span>
+                </span>
+                <span id="region-name">BOSQUE KABOOM</span>
+            </div>
+            <div class="ui-block" style="pointer-events:auto;">
+                <button id="menu-btn">⚙️ OPCIONES</button>
+            </div>
+        </div>
+
+        <!-- Instrucciones (pixelart) -->
+        <div style="position:absolute; bottom:12px; left:50%; transform:translateX(-50%); z-index:10; background:rgba(10,8,16,0.7); padding:6px 16px; border:2px solid #5a4a6a; color:#b0a0b8; font-size:10px; pointer-events:none; text-align:center;">
+            ← →  mover personaje
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ==============================
+            // 1. GENERAR IMÁGENES PNG (dataURL)
+            // ==============================
+
+            function createBackgroundPNG() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 960;
+                canvas.height = 540;
+                const ctx = canvas.getContext('2d');
+
+                // Cielo degradado
+                const grad = ctx.createLinearGradient(0, 0, 0, 540);
+                grad.addColorStop(0, '#6b8cff');
+                grad.addColorStop(0.6, '#9ac0ff');
+                grad.addColorStop(1, '#d4e4ff');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 960, 540);
+
+                // Sol pixelado
+                ctx.fillStyle = '#ffe066';
+                for (let y = 40; y < 100; y += 8) {
+                    for (let x = 780; x < 860; x += 8) {
+                        if ((x - 780) / 8 + (y - 40) / 8 < 8) {
+                            ctx.fillRect(x, y, 8, 8);
+                        }
+                    }
+                }
+                // Montañas lejanas
+                ctx.fillStyle = '#5a7a4a';
+                ctx.beginPath();
+                ctx.moveTo(0, 400);
+                for (let x = 0; x <= 960; x += 8) {
+                    let y = 400 - 40 * Math.sin(x * 0.008) - 30 * Math.sin(x * 0.015 + 2) - 20 * Math.sin(x * 0.025 + 4);
+                    ctx.lineTo(x, y);
+                }
+                ctx.lineTo(960, 540);
+                ctx.lineTo(0, 540);
+                ctx.closePath();
+                ctx.fill();
+
+                // Montañas más oscuras delante
+                ctx.fillStyle = '#3a5a2a';
+                ctx.beginPath();
+                ctx.moveTo(0, 440);
+                for (let x = 0; x <= 960; x += 8) {
+                    let y = 440 - 30 * Math.sin(x * 0.01 + 1) - 25 * Math.sin(x * 0.02 + 3);
+                    ctx.lineTo(x, y);
+                }
+                ctx.lineTo(960, 540);
+                ctx.lineTo(0, 540);
+                ctx.closePath();
+                ctx.fill();
+
+                return canvas.toDataURL('image/png');
+            }
+
+            function createFrontBackgroundPNG() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1920; // más ancho para parallax
+                canvas.height = 540;
+                const ctx = canvas.getContext('2d');
+
+                // Fondo transparente (solo elementos frontales)
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Suelo / hierba
+                ctx.fillStyle = '#4a8a3a';
+                ctx.fillRect(0, 460, canvas.width, 80);
+                ctx.fillStyle = '#3a7a2a';
+                for (let x = 0; x < canvas.width; x += 12) {
+                    ctx.fillRect(x, 470, 6, 12);
+                }
+
+                // Árboles (pixelados)
+                function drawTree(cx, cy) {
+                    // Tronco
+                    ctx.fillStyle = '#6a4a2a';
+                    ctx.fillRect(cx - 6, cy - 20, 12, 40);
+                    // Copa
+                    ctx.fillStyle = '#2a7a2a';
+                    for (let y = 0; y < 30; y += 8) {
+                        for (let x = -20; x <= 20; x += 8) {
+                            if (Math.abs(x) + Math.abs(y - 15) < 25) {
+                                ctx.fillRect(cx + x, cy - 30 + y, 8, 8);
+                            }
+                        }
+                    }
+                    ctx.fillStyle = '#3a8a3a';
+                    for (let y = 0; y < 20; y += 8) {
+                        for (let x = -14; x <= 14; x += 8) {
+                            if (Math.abs(x) + Math.abs(y - 10) < 18) {
+                                ctx.fillRect(cx + x + 4, cy - 26 + y, 8, 8);
+                            }
+                        }
+                    }
+                }
+
+                // Arbustos
+                function drawBush(cx, cy) {
+                    ctx.fillStyle = '#3a7a2a';
+                    for (let y = 0; y < 16; y += 8) {
+                        for (let x = -16; x <= 16; x += 8) {
+                            if (Math.abs(x) + Math.abs(y - 8) < 18) {
+                                ctx.fillRect(cx + x, cy + y, 8, 8);
+                            }
+                        }
+                    }
+                }
+
+                // Repartir árboles y arbustos a lo largo del ancho
+                for (let x = 40; x < canvas.width - 40; x += 180 + Math.random() * 120) {
+                    drawTree(x, 400 + Math.random() * 30 - 15);
+                }
+                for (let x = 20; x < canvas.width; x += 100 + Math.random() * 80) {
+                    drawBush(x, 430 + Math.random() * 20);
+                }
+
+                // Nubes pixeladas
+                function drawCloud(cx, cy) {
+                    ctx.fillStyle = 'rgba(255,255,240,0.8)';
+                    for (let y = 0; y < 24; y += 8) {
+                        for (let x = -24; x <= 24; x += 8) {
+                            if (Math.abs(x) + Math.abs(y - 12) < 28 && !(Math.abs(x) > 20 && y > 16)) {
+                                ctx.fillRect(cx + x, cy + y, 8, 8);
+                            }
+                        }
+                    }
+                }
+                for (let x = 100; x < canvas.width; x += 400 + Math.random() * 300) {
+                    drawCloud(x, 60 + Math.random() * 80);
+                }
+
+                return canvas.toDataURL('image/png');
+            }
+
+            function createCharacterPNG() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 80;
+                const ctx = canvas.getContext('2d');
+
+                // Cuerpo (pixelart)
+                const colores = {
+                    piel: '#f0c8a0',
+                    camisa: '#d44a4a',
+                    pantalon: '#3a5a8a',
+                    pelo: '#6a4a2a',
+                    ojos: '#1a1a2a',
+                    boca: '#8a3a2a',
+                    borde: '#2a1a0a'
+                };
+
+                // Cabello
+                ctx.fillStyle = colores.pelo;
+                ctx.fillRect(16, 8, 32, 16);
+                ctx.fillRect(12, 16, 40, 8);
+                // Cara
+                ctx.fillStyle = colores.piel;
+                ctx.fillRect(16, 24, 32, 16);
+                ctx.fillRect(20, 16, 24, 8);
+                // Ojos
+                ctx.fillStyle = colores.ojos;
+                ctx.fillRect(20, 28, 6, 6);
+                ctx.fillRect(38, 28, 6, 6);
+                // Boca
+                ctx.fillStyle = colores.boca;
+                ctx.fillRect(26, 36, 12, 4);
+                // Cuerpo (camisa)
+                ctx.fillStyle = colores.camisa;
+                ctx.fillRect(16, 40, 32, 24);
+                // Brazos
+                ctx.fillStyle = colores.piel;
+                ctx.fillRect(8, 44, 8, 16);
+                ctx.fillRect(48, 44, 8, 16);
+                // Pantalón
+                ctx.fillStyle = colores.pantalon;
+                ctx.fillRect(18, 64, 12, 16);
+                ctx.fillRect(34, 64, 12, 16);
+                // Zapatos
+                ctx.fillStyle = '#3a2a1a';
+                ctx.fillRect(14, 76, 16, 4);
+                ctx.fillRect(34, 76, 16, 4);
+
+                // Contorno pixelado (opcional)
+                ctx.strokeStyle = '#1a1a2a';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(16, 24, 32, 16);
+
+                return canvas.toDataURL('image/png');
+            }
+
+            // Asignar imágenes a los elementos
+            const bgData = createBackgroundPNG();
+            const frontData = createFrontBackgroundPNG();
+            const charData = createCharacterPNG();
+
+            document.getElementById('background-layer').style.backgroundImage = `url('${bgData}')`;
+            document.getElementById('front-layer').style.backgroundImage = `url('${frontData}')`;
+            document.getElementById('character').style.backgroundImage = `url('${charData}')`;
+
+            // ==============================
+            // 2. LÓGICA DEL JUEGO
+            // ==============================
+
+            const game = {
+                character: document.getElementById('character'),
+                frontLayer: document.getElementById('front-layer'),
+                hpFill: document.getElementById('hp-fill'),
+                cacaoCount: document.getElementById('cacao-count'),
+                guajeFill: document.getElementById('guaje-fill'),
+                guajeType: document.getElementById('guaje-type'),
+                regionName: document.getElementById('region-name'),
+
+                charX: 400, // posición actual del personaje (px)
+                frontX: 0, // desplazamiento de la capa frontal
+                speed: 6,
+                parallaxFactor: 0.25,
+                maxX: 896, // límite derecho (960 - 64)
+                minX: 0,
+
+                // variables de estado
+                hp: 76,
+                cacao: 42,
+                guajeLevel: 65,
+                guajeTypes: ['PULQUE', 'AGUA', 'MEZCAL'],
+                guajeIndex: 0,
+                regiones: ['BOSQUE KABOOM', 'MONTAÑA KABOOM', 'DESIERTO KABOOM', 'PLAYA KABOOM'],
+                regionIndex: 0,
+            };
+
+            // Inicializar UI
+            function updateUI() {
+                game.hpFill.style.width = game.hp + '%';
+                game.cacaoCount.textContent = game.cacao;
+                game.guajeFill.style.height = game.guajeLevel + '%';
+                game.guajeType.textContent = game.guajeTypes[game.guajeIndex];
+                game.regionName.textContent = game.regiones[game.regionIndex];
+            }
+            updateUI();
+
+            // Movimiento con teclado
+            const keys = {
+                left: false,
+                right: false
+            };
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    keys.left = true;
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    keys.right = true;
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    keys.left = false;
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    keys.right = false;
+                }
+            });
+
+            // Bucle de actualización
+            function update() {
+                let dx = 0;
+                if (keys.left) dx = -game.speed;
+                if (keys.right) dx = game.speed;
+
+                if (dx !== 0) {
+                    // Mover personaje
+                    let newX = game.charX + dx;
+                    newX = Math.max(game.minX, Math.min(game.maxX, newX));
+                    game.charX = newX;
+                    game.character.style.left = game.charX + 'px';
+
+                    // Mover capa frontal (parallax)
+                    // El front se mueve en la misma dirección pero con factor menor
+                    game.frontX += dx * game.parallaxFactor;
+                    // Mantener dentro de un rango para no mostrar bordes (la imagen es 1920px, el contenedor 960px)
+                    // Permitimos que se desplace hasta que el borde derecho coincida con el final de la imagen
+                    const maxFront = 960; // 1920 - 960
+                    const minFront = -960;
+                    if (game.frontX > maxFront) game.frontX = maxFront;
+                    if (game.frontX < minFront) game.frontX = minFront;
+                    game.frontLayer.style.transform = `translateX(${game.frontX}px)`;
+
+                    // Efecto secundario: cambiar región al llegar a ciertos puntos (simulación)
+                    // Usamos la posición del personaje para cambiar de región
+                    const regionIndex = Math.floor((game.charX / game.maxX) * game.regiones.length);
+                    if (regionIndex !== game.regionIndex) {
+                        game.regionIndex = Math.min(regionIndex, game.regiones.length - 1);
+                        game.regionName.textContent = game.regiones[game.regionIndex];
+                    }
+                }
+
+                requestAnimationFrame(update);
+            }
+
+            update();
+
+            // ==============================
+            // 3. INTERACCIONES UI (ejemplo)
+            // ==============================
+
+            // Botón de opciones
+            document.getElementById('menu-btn').addEventListener('click', () => {
+                alert('⚙️ OPCIONES\n- Sonido: ON\n- Volumen: 70%\n- Dificultad: NORMAL\n- (Prototipo)');
+            });
+
+            // Cambiar tipo de guaje al hacer clic (simulación)
+            document.getElementById('guaje-container').addEventListener('click', (e) => {
+                e.stopPropagation();
+                game.guajeIndex = (game.guajeIndex + 1) % game.guajeTypes.length;
+                game.guajeType.textContent = game.guajeTypes[game.guajeIndex];
+                // Cambiar color según tipo
+                const colors = ['#b88a3a', '#3a8ac0', '#c08a3a'];
+                document.getElementById('guaje-fill').style.background = colors[game.guajeIndex];
+            });
+
+            // Simular cambio de vida y cacao con teclas (para demo)
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'h' || e.key === 'H') {
+                    game.hp = Math.min(100, game.hp + 10);
+                    updateUI();
+                } else if (e.key === 'j' || e.key === 'J') {
+                    game.hp = Math.max(0, game.hp - 10);
+                    updateUI();
+                } else if (e.key === 'c' || e.key === 'C') {
+                    game.cacao += 5;
+                    updateUI();
+                } else if (e.key === 'v' || e.key === 'V') {
+                    game.cacao = Math.max(0, game.cacao - 5);
+                    updateUI();
+                } else if (e.key === 'g' || e.key === 'G') {
+                    game.guajeLevel = Math.min(100, game.guajeLevel + 10);
+                    updateUI();
+                } else if (e.key === 'f' || e.key === 'F') {
+                    game.guajeLevel = Math.max(0, game.guajeLevel - 10);
+                    updateUI();
+                }
+            });
+
+            // Pequeña instrucción en consola
+            console.log('🎮 Prototipo Kaboom');
+            console.log('Flechas ← → mover');
+            console.log('H/J: vida +/-, C/V: cacao +/-, G/F: guaje +/-');
+
+        })();
+    </script>
+</body>
+</html>
