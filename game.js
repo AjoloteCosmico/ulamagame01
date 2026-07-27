@@ -24,35 +24,36 @@ kaboom({
   background: [30, 20, 10],
 });
 
- loadSprite('player1', '/sprites/vic_sprite02.png', {
-  sliceX: 8,
+ loadSprite('player1', '/sprites/Alan_v01.png', {
+  sliceX: 9,
   sliceY: 3,
   anims: {
     idleR: 0,
     idleL: 8,
-    walkR: { from: 1, to: 7, speed: 12, loop: true },
-    walkL: { from: 15, to: 8, speed: 12, loop: true },
+    walkR: { from: 18, to: 25, speed: 11, loop: true },
+    walkL: { from: 18, to: 25, speed: 11, loop: true },
     jumpR: 16, // Ajusta según tu sprite
     jumpL: 18,
     duckR: 17, // Ajusta
     duckL: 19,
   },
 });
-
- loadSprite('player2', '/sprites/brandi.jpeg', {
-  sliceX: 4,
-  sliceY: 2,
+ loadSprite('player2', '/sprites/Alan_v01.png', {
+  sliceX: 9,
+  sliceY: 3,
   anims: {
     idleR: 0,
-    idleL: 7,
-    walkR: { from: 4, to: 7, speed: 12, loop: true },
-    walkL: { from: 0, to: 3, speed: 12, loop: true },
+    idleL: 8,
+    walkR: { from: 18, to: 25, speed: 12, loop: true },
+    walkL: { from: 18, to: 25, speed: 12, loop: true },
     jumpR: 1,
     jumpL: 4,
     duckR: 2,
     duckL: 0,
   },
 });
+
+loadSprite('ball', '/sprites/pelota3.png');
 
 // ─── Configuración de la escena ───────────────────────────────────────────────
 
@@ -132,10 +133,10 @@ scene('game', () => {
 
   // Sprite de pelota
   const ballSprite = add([
-    circle(ball.radius),
+    sprite('ball'),
     pos(ball.pos.x, ball.pos.y),
-    color(240, 220, 80),
     anchor('center'),
+    scale(0.8),
   ]);
 
   // HUD provisional

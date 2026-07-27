@@ -120,20 +120,20 @@ export class Caida {
 export const CAIDAS = {
   golpe_normal: new Caida({
     name: 'golpe_normal',
-    duration: 0.35,
+    duration: 0.8,
     forceCurve: [[0, 0], [0.4, 1], [0.7, 0.8], [1, 0]],
     impulseVector: { x: 550, y: -280 },
     heightModifier: 'normal',
-    animFrame: { from: 16, to: 17, speed: 15, loop: false },
+    animFrame: { from: 9, to: 17, speed: 14, loop: false },
   }),
 
   remate: new Caida({
     name: 'remate',
-    duration: 0.25,
+    duration: 0.7,
     forceCurve: [[0, 0], [0.2, 1.8], [0.6, 1.2], [1, 0]],
     impulseVector: { x: 800, y: -150 },
     heightModifier: 'low',
-    animFrame: 20,
+    animFrame: { from: 0, to: 8, speed: 11, loop: false },
   }),
 
   globo: new Caida({
