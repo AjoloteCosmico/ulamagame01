@@ -17,6 +17,7 @@ import { Ball }   from './entities/Ball.js';
 import { Player } from './entities/Player.js';
 import { Court }  from './entities/Court.js';
 import { initInput, applyInputToPlayers } from './systems/input.js';
+import bgSelva from './fondos/desierto1.avif';
 
 kaboom({
   width: 1280,
@@ -24,18 +25,21 @@ kaboom({
   background: [30, 20, 10],
 });
 
- loadSprite('player1', '/sprites/Alan_v01.png', {
-  sliceX: 9,
+const FLOOR_COLOR = { r: 90, g: 60, b: 40 };
+
+loadSprite('selvaBg', bgSelva);
+loadSprite('player1', '/sprites/Alan_anime.png', {
+  sliceX: 8,
   sliceY: 3,
   anims: {
     idleR: 0,
-    idleL: 8,
-    walkR: { from: 18, to: 25, speed: 11, loop: true },
-    walkL: { from: 18, to: 25, speed: 11, loop: true },
+    idleL: 7,
+    walkR: { from: 16, to: 23, speed: 11, loop: true },
+    walkL: { from: 16, to: 23, speed: 11, loop: true },
     jumpR: 16, // Ajusta según tu sprite
-    jumpL: 18,
-    duckR: 17, // Ajusta
-    duckL: 19,
+    jumpL: 17,
+    duckR: 16, // Ajusta
+    duckL: 16,
   },
 });
  loadSprite('player2', '/sprites/Alan_v01.png', {
@@ -43,7 +47,7 @@ kaboom({
   sliceY: 3,
   anims: {
     idleR: 0,
-    idleL: 8,
+    idleL: 0,
     walkR: { from: 18, to: 25, speed: 12, loop: true },
     walkL: { from: 18, to: 25, speed: 12, loop: true },
     jumpR: 1,
@@ -59,6 +63,7 @@ loadSprite('ball', '/sprites/pelota3.png');
 
 const WORLD_W = 1280;
 const WORLD_H = 720;
+const HORIZON_Y = 530;
 
 // Posiciones iniciales (coordenadas mundo)
 const PLAYER_SPAWN = [
@@ -74,9 +79,9 @@ scene('game', () => {
   // ── Instancias ──────────────────────────────────────────────────────────
   const court = new Court({
     hardness:   0.65,
-    groundY:    530,
+    groundY:    HORIZON_Y,
     xLimits:    { minX: 40,  maxX: WORLD_W - 40 },
-    laneLimits: { minY: 300, maxY: 530 },
+    laneLimits: { minY: 300, maxY: HORIZON_Y },
     screenRect: { x: 0, y: 0, w: WORLD_W, h: WORLD_H },
   });
 
@@ -105,11 +110,30 @@ scene('game', () => {
 
   // ── Objetos Kaboom (solo visuales; la física la manejan nuestras clases) ─
 
-  // Suelo de referencia (visual)
+  // Fondo: imagen desde la línea de horizonte hacia arriba
   add([
-    rect(WORLD_W, 8),
+    sprite('selvaBg'),
+    pos(0, 0),
+    anchor('topleft'),
+    // #arregalr estas varaiables globales para que ajusten desde que se inicializa el lienzo
+    // en vez zde cantidades fijas hay que extraer las dimensiones de la imagen
+    scale(WORLD_W/740 , HORIZON_Y/416),
+    { z: -3 },
+  ]);
+
+  // Piso sólido debajo de la línea de horizonte
+  add([
+    rect(WORLD_W, WORLD_H - court.groundY),
     pos(0, court.groundY),
-    color(80, 60, 40),
+    color(FLOOR_COLOR.r, FLOOR_COLOR.g, FLOOR_COLOR.b),
+    { z: -2 },
+  ]);
+
+  // Línea de horizonte
+  add([
+    rect(WORLD_W, 4),
+    pos(0, HORIZON_Y - 2),
+    color(220, 220, 200),
     { z: -1 },
   ]);
 
