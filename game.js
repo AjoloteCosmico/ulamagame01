@@ -32,28 +32,28 @@ const FLOOR_COLOR = { r: 90, g: 60, b: 40 };
 
 loadSprite('selvaBg', bgSelva);
 loadSprite('player1', player1Img, {
-  sliceX: 8,
+  sliceX: 9,
   sliceY: 3,
   anims: {
     idleR: 0,
-    idleL: 7,
-    walkR: { from: 16, to: 23, speed: 11, loop: true },
-    walkL: { from: 16, to: 23, speed: 11, loop: true },
-    jumpR: 16,
-    jumpL: 17,
+    idleL: 0,
+      walkR: { from: 18, to: 26, speed: 12, loop: true },
+    walkL: { from: 18, to: 26, speed: 12, loop: true },
+    jumpR: 1,
+    jumpL: 1,
     duckR: 16,
     duckL: 16,
   },
 });
 
 loadSprite('player2', player2Img, {
-  sliceX: 9,
-  sliceY: 3,
+  sliceX: 0,
+  sliceY: 0,
   anims: {
     idleR: 0,
     idleL: 0,
-    walkR: { from: 18, to: 25, speed: 12, loop: true },
-    walkL: { from: 18, to: 25, speed: 12, loop: true },
+    walkR: { from: 16, to: 23, speed: 12, loop: true },
+    walkL: { from: 16, to: 23, speed: 12, loop: true },
     jumpR: 1,
     jumpL: 4,
     duckR: 2,
