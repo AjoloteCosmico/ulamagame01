@@ -41,8 +41,8 @@ const PLAYER_KEYMAPS = [
     right:        'right',
     jump:         'shift',
     hit:          'enter',
-    cycleHitNext: ']',
-    cycleHitPrev: '[',
+    cycleHitNext: '{',
+    cycleHitPrev: '}',
   },
 ];
 

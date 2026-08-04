@@ -18,8 +18,8 @@ import { Player } from './entities/Player.js';
 import { Court }  from './entities/Court.js';
 import { initInput, applyInputToPlayers } from './systems/input.js';
 import bgSelva from './fondos/desierto1.avif';
-import player1Img from './sprites/Alan_anime.png';
-import player2Img from './sprites/Alan_v01.png';
+import player1Img from './sprites/Alan_v01.png';
+import player2Img from './sprites/Alan_anime.png';
 import ballImg from './sprites/pelota3.png';
 
 kaboom({
