@@ -18,6 +18,9 @@ import { Player } from './entities/Player.js';
 import { Court }  from './entities/Court.js';
 import { initInput, applyInputToPlayers } from './systems/input.js';
 import bgSelva from './fondos/desierto1.avif';
+import player1Img from './sprites/Alan_anime.png';
+import player2Img from './sprites/Alan_v01.png';
+import ballImg from './sprites/pelota3.png';
 
 kaboom({
   width: 1280,
@@ -28,7 +31,7 @@ kaboom({
 const FLOOR_COLOR = { r: 90, g: 60, b: 40 };
 
 loadSprite('selvaBg', bgSelva);
-loadSprite('player1', '/sprites/Alan_anime.png', {
+loadSprite('player1', player1Img, {
   sliceX: 8,
   sliceY: 3,
   anims: {
@@ -36,13 +39,14 @@ loadSprite('player1', '/sprites/Alan_anime.png', {
     idleL: 7,
     walkR: { from: 16, to: 23, speed: 11, loop: true },
     walkL: { from: 16, to: 23, speed: 11, loop: true },
-    jumpR: 16, // Ajusta según tu sprite
+    jumpR: 16,
     jumpL: 17,
-    duckR: 16, // Ajusta
+    duckR: 16,
     duckL: 16,
   },
 });
- loadSprite('player2', '/sprites/Alan_v01.png', {
+
+loadSprite('player2', player2Img, {
   sliceX: 9,
   sliceY: 3,
   anims: {
@@ -57,7 +61,7 @@ loadSprite('player1', '/sprites/Alan_anime.png', {
   },
 });
 
-loadSprite('ball', '/sprites/pelota3.png');
+loadSprite('ball', ballImg);
 
 // ─── Configuración de la escena ───────────────────────────────────────────────
 
