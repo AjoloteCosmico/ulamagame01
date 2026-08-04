@@ -48,7 +48,7 @@ loadSprite('player1', player1Img, {
 
 loadSprite('player2', player2Img, {
   sliceX: 8,
-  sliceY: 0,
+  sliceY: 3,
   anims: {
     idleR: 0,
     idleL: 0,
